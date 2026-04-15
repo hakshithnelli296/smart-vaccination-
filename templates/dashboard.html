@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | SmartVac{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <p>Monitor your children's vaccination progress.</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <div class="icon"><i class="fa-solid fa-syringe"></i></div>
+        <div class="details">
+            <h3>{{ stats.total }}</h3>
+            <p>Total Vaccines</p>
+        </div>
+    </div>
+    <div class="stat-card green">
+        <div class="icon"><i class="fa-solid fa-check-circle"></i></div>
+        <div class="details">
+            <h3>{{ stats.completed }}</h3>
+            <p>Completed</p>
+        </div>
+    </div>
+    <div class="stat-card yellow">
+        <div class="icon"><i class="fa-solid fa-clock"></i></div>
+        <div class="details">
+            <h3>{{ stats.pending }}</h3>
+            <p>Pending</p>
+        </div>
+    </div>
+    <div class="stat-card red">
+        <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="details">
+            <h3>{{ stats.overdue }}</h3>
+            <p>Overdue</p>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-main-grid">
+    <div class="card recent-activity">
+        <h2><i class="fa-solid fa-bell"></i> Upcoming & Overdue Vaccines</h2>
+        {% if upcoming %}
+            <ul class="activity-list">
+                {% for r in upcoming %}
+                <li class="activity-item {% if r.due_date < today %}overdue{% else %}upcoming{% endif %}">
+                    <div class="activity-icon">
+                        {% if r.due_date < today %}
+                            <i class="fa-solid fa-exclamation-circle text-red"></i>
+                        {% else %}
+                            <i class="fa-solid fa-calendar text-blue"></i>
+                        {% endif %}
+                    </div>
+                    <div class="activity-content">
+                        <h4>{{ r.vaccine_name }}</h4>
+                        <p>For {{ r.child.name }} - Due: {{ r.due_date.strftime('%B %d, %Y') }}</p>
+                    </div>
+                    <a href="{{ url_for('timeline', child_id=r.child_id) }}" class="btn-small">View</a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-check-double"></i>
+                <p>No upcoming vaccines in the next 30 days!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card completion-chart-card">
+        <h2><i class="fa-solid fa-chart-pie"></i> Completion Status</h2>
+        <div class="chart-container">
+            <canvas id="completionChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('completionChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending'],
+                datasets: [{
+                    data: [{{ stats.completed }}, {{ stats.pending }}],
+                    backgroundColor: ['#10b981', '#f59e0b'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#f8fafc', font: { family: "'Inter', sans-serif" } }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

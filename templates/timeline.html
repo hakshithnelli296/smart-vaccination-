@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Timeline | {{ child.name }}{% endblock %}
+
+{% block content %}
+<div class="timeline-header">
+    <a href="{{ url_for('manage_children') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Children</a>
+    <div class="child-title-bar">
+        <h1>Vaccination Timeline for {{ child.name }}</h1>
+        <div class="child-meta">
+            <span class="badge">Born: {{ child.dob.strftime('%b %d, %Y') }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="timeline-container">
+    <div class="timeline-line"></div>
+    {% for record in records %}
+    <div class="timeline-item {% if record.completed %}completed{% elif record.due_date < today %}overdue{% endif %}" data-id="{{ record.id }}">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content card">
+            <div class="tl-header">
+                <h3>{{ record.vaccine_name }}</h3>
+                <span class="status-badge">
+                    {% if record.completed %}
+                        Completed ({{ record.completed_date.strftime('%b %Y') }})
+                    {% elif record.due_date < today %}
+                        Overdue
+                    {% else %}
+                        Due: {{ record.due_date.strftime('%b %Y') }}
+                    {% endif %}
+                </span>
+            </div>
+            <p>Scheduled for around: {{ record.due_date.strftime('%B %d, %Y') }}</p>
+            
+            <div class="tl-actions">
+                <label class="custom-checkbox">
+                    <input type="checkbox" class="vaccine-check" data-id="{{ record.id }}" {% if record.completed %}checked{% endif %}>
+                    <span class="checkmark"></span>
+                    Mark as completed
+                </label>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.vaccine-check').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const recordId = this.dataset.id;
+            const completed = this.checked;
+            const timelineItem = this.closest('.timeline-item');
+            
+            fetch(`/vaccine/${recordId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ completed: completed })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    if(completed) {
+                        timelineItem.classList.add('completed');
+                        timelineItem.classList.remove('overdue');
+                        timelineItem.querySelector('.status-badge').textContent = 'Completed (Just now)';
+                    } else {
+                        timelineItem.classList.remove('completed');
+                        // Requires a page reload to accurately assess if it was overdue, but simplified here
+                        window.location.reload(); 
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

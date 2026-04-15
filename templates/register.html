@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Register | SmartVac{% endblock %}
+
+{% block guest_content %}
+<div class="auth-card glass-panel">
+    <div class="auth-header">
+        <div class="brand-icon"><i class="fa-solid fa-notes-medical"></i></div>
+        <h2>Create an Account</h2>
+        <p>Start tracking vaccinations today.</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+        <div class="form-group">
+            <label><i class="fa-solid fa-user"></i> Username</label>
+            <input type="text" name="username" required placeholder="Choose a username">
+        </div>
+        <div class="form-group">
+            <label><i class="fa-solid fa-lock"></i> Password</label>
+            <input type="password" name="password" required placeholder="Create a password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+    </form>
+    
+    <div class="auth-footer">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

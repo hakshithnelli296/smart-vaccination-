@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Login | SmartVac{% endblock %}
+
+{% block guest_content %}
+<div class="auth-card glass-panel">
+    <div class="auth-header">
+        <div class="brand-icon"><i class="fa-solid fa-shield-virus"></i></div>
+        <h2>Welcome Back</h2>
+        <p>Login to secure your child's health records</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+        <div class="form-group">
+            <label><i class="fa-solid fa-user"></i> Username</label>
+            <input type="text" name="username" required placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label><i class="fa-solid fa-lock"></i> Password</label>
+            <input type="password" name="password" required placeholder="Enter password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+    </form>
+    
+    <div class="auth-footer">
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+    </div>
+</div>
+{% endblock %}

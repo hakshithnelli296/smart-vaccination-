@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Children | SmartVac{% endblock %}
+
+{% block content %}
+<div class="header-actions">
+    <h1>Your Children</h1>
+    <button class="btn btn-primary" onclick="document.getElementById('addChildModal').style.display='flex'">
+        <i class="fa-solid fa-plus"></i> Add Child
+    </button>
+</div>
+
+<div class="children-grid">
+    {% for child in children %}
+    <div class="child-card">
+        <div class="child-avatar">
+            {% if child.gender == 'Female' %}
+                <i class="fa-solid fa-child-dress avatar-female"></i>
+            {% else %}
+                <i class="fa-solid fa-child avatar-male"></i>
+            {% endif %}
+        </div>
+        <div class="child-info">
+            <h3>{{ child.name }}</h3>
+            <p>Born: {{ child.dob.strftime('%b %d, %Y') }}</p>
+            <p>Gender: {{ child.gender }}</p>
+        </div>
+        <div class="child-actions">
+            <a href="{{ url_for('timeline', child_id=child.id) }}" class="btn btn-outline">View Timeline</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state full-width">
+        <i class="fa-solid fa-baby-carriage"></i>
+        <p>No children added yet. Click 'Add Child' to get started.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for adding a child -->
+<div class="modal" id="addChildModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Child Profile</h2>
+            <button class="close-modal" onclick="document.getElementById('addChildModal').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form method="POST" action="{{ url_for('manage_children') }}">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" required placeholder="E.g. John Doe">
+            </div>
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" name="dob" required>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select name="gender" required>
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Profile</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
